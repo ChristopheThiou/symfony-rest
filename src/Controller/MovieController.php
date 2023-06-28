@@ -77,10 +77,15 @@ class MovieController extends AbstractController
         if($movie == null) {
             return $this->json('Resource Not found', 404);
         }
+        try {
 
-        $serializer->deserialize($request->getContent(), Movie::class, 'json',[
-            'object_to_populate' => $movie
-        ]);
+            $serializer->deserialize($request->getContent(), Movie::class, 'json',[
+                'object_to_populate' => $movie
+            ]);
+        }catch(\Exception $error) {
+            return $this->json('Invalid body', 400);
+        }
+
         $this->repo->update($movie);
 
         return $this->json($movie);

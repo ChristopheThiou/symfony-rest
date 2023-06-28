@@ -5,7 +5,7 @@ namespace App\Tests;
 use App\Repository\Database;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class MovieApiTest extends WebTestCase
+class GenreApiTest extends WebTestCase
 {
     /**
      * La méthode setUp sera déclenchée avant l'exécution de chacun des tests de la classe actuelle.
@@ -18,13 +18,13 @@ class MovieApiTest extends WebTestCase
     public function testGetAllSuccess(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/movie');
+        $client->request('GET', '/api/genre');
         $json = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertResponseIsSuccessful();
 
         $this->assertNotEmpty($json);
-        $this->assertIsString($json[0]['title']);
+        $this->assertIsString($json[0]['label']);
         $this->assertIsInt($json[0]['id']);
        
     }
@@ -33,15 +33,12 @@ class MovieApiTest extends WebTestCase
     public function testGetOneSuccess(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/movie/1');
+        $client->request('GET', '/api/genre/1');
         $json = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertResponseIsSuccessful();
 
-        $this->assertIsString($json['title']);
-        $this->assertIsString($json['resume']);
-        $this->assertIsInt($json['duration']);
-        $this->assertIsString($json['released']);
+        $this->assertIsString($json['label']);
         $this->assertIsInt($json['id']);
        
     }
@@ -52,7 +49,7 @@ class MovieApiTest extends WebTestCase
     public function testGetOneNotFound(): void
     {
         $client = static::createClient();
-        $client->request('GET', '/api/movie/100');
+        $client->request('GET', '/api/genre/100');
         
         $this->assertResponseStatusCodeSame(404);
 
@@ -61,11 +58,8 @@ class MovieApiTest extends WebTestCase
     public function testPostSuccess(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/api/movie', content: json_encode([
-            'title' => 'From Test',
-            'resume' => 'Resume Test',
-            'released' => '2020-10-01',
-            'duration' => 100
+        $client->request('POST', '/api/genre', content: json_encode([
+            'label' => 'From Test'
         ]));
         $json = json_decode($client->getResponse()->getContent(), true);
 
@@ -76,18 +70,14 @@ class MovieApiTest extends WebTestCase
     public function testPostValidationFailed(): void
     {
         $client = static::createClient();
-        $client->request('POST', '/api/movie', content: json_encode([
-            'title' => '',
-            'resume' => 'Resume Test',
-            'released' => '2020-10-01',
-            'duration' => -100
+        $client->request('POST', '/api/genre', content: json_encode([
+            'label' => ''
         ]));
         $json = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertResponseStatusCodeSame(400);
 
-        $this->assertStringContainsString('title', $json['errors']['detail']);
-        $this->assertStringContainsString('duration', $json['errors']['detail']);
+        $this->assertStringContainsString('label', $json['errors']['detail']);
 
     }
 
@@ -95,30 +85,27 @@ class MovieApiTest extends WebTestCase
     public function testPatchSuccess(): void
     {
         $client = static::createClient();
-        $client->request('PATCH', '/api/movie/2', content: json_encode([
-            'title' => 'From Test'
+        $client->request('PATCH', '/api/genre/2', content: json_encode([
+            'label' => 'From Test'
         ]));
         $json = json_decode($client->getResponse()->getContent(), true);
 
         $this->assertResponseIsSuccessful();
 
         //On vérifie que le champ à modifier l'a bien été
-        $this->assertEquals($json['title'], 'From Test');
-        //Et pourquoi pas que les autres champs sont restés inchangés
-        $this->assertEquals($json['resume'], 'a mafia movie sequel');
-        $this->assertEquals($json['released'], '1974-12-20T00:00:00+01:00');
+        $this->assertEquals($json['label'], 'From Test');
     }
     public function testPatchNotFound(): void
     {
         $client = static::createClient();
-        $client->request('PATCH', '/api/movie/100');
+        $client->request('PATCH', '/api/genre/100');
         $this->assertResponseStatusCodeSame(404);
 
     }
     public function testDeleteSuccess(): void
     {
         $client = static::createClient();
-        $client->request('DELETE', '/api/movie/1');
+        $client->request('DELETE', '/api/genre/1');
 
         $this->assertResponseIsSuccessful();
 
