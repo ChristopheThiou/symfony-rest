@@ -11,8 +11,9 @@ class MovieApiTest extends WebTestCase
      * La méthode setUp sera déclenchée avant l'exécution de chacun des tests de la classe actuelle.
      * Ici on lui dit de remettre à zéro la bdd en se basant sur le contenu du database.sql
      */
-    public function setUp():void {
-        Database::getConnection()->query(file_get_contents(__DIR__.'/../database.sql'));
+    public function setUp(): void
+    {
+        Database::getConnection()->query(file_get_contents(__DIR__ . '/../database.sql'));
     }
 
     public function testGetAllSuccess(): void
@@ -26,7 +27,7 @@ class MovieApiTest extends WebTestCase
         $this->assertNotEmpty($json);
         $this->assertIsString($json[0]['title']);
         $this->assertIsInt($json[0]['id']);
-       
+
     }
 
 
@@ -43,7 +44,7 @@ class MovieApiTest extends WebTestCase
         $this->assertIsInt($json['duration']);
         $this->assertIsString($json['released']);
         $this->assertIsInt($json['id']);
-       
+
     }
     /**
      * En général c'est bien de faire différents tests dédiés aux différents scénarios prévu. Ici on vérifie
@@ -53,11 +54,11 @@ class MovieApiTest extends WebTestCase
     {
         $client = static::createClient();
         $client->request('GET', '/api/movie/100');
-        
+
         $this->assertResponseStatusCodeSame(404);
 
     }
-    
+
     public function testPostSuccess(): void
     {
         $client = static::createClient();
@@ -122,5 +123,29 @@ class MovieApiTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
 
+    }
+    public function testSearchSucces(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/api/movie/search/Star Wars');
+        $json = json_decode($client->getResponse()->getContent(), true);
+
+
+        $this->assertResponseIsSuccessful();
+
+        $this->assertNotEmpty($json);
+        $this->assertIsString($json[0]['title']);
+        $this->assertIsInt($json[0]['id']);
+
+    }
+    public function testSearchFail(): void
+    {
+        $client = static::createClient();
+        $client->request('GET', '/api/movie/search/bloup');
+        $json = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertResponseIsSuccessful();
+
+        $this->assertEmpty($json);
     }
 }

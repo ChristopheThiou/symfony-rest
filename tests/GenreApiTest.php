@@ -26,7 +26,6 @@ class GenreApiTest extends WebTestCase
         $this->assertNotEmpty($json);
         $this->assertIsString($json[0]['label']);
         $this->assertIsInt($json[0]['id']);
-       
     }
 
 
